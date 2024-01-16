@@ -60,6 +60,9 @@ public class Station {
     }
 
     public void setChangStations(ArrayList<Station> changStations) {
+        if(this.changStations != null){
+            this.changStations.addAll(changStations);
+        }
         this.changStations = changStations;
     }
 
