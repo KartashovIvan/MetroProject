@@ -1,6 +1,5 @@
 import metro.model.Metro;
 import metro.model.Station;
-
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,6 +8,8 @@ public class Runner {
     public static void main(String[] args) {
         Metro metro = createMetro();
         System.out.println(metro);
+
+//        System.out.println(metro.findChangeStation(metro.takeLine("Синяя"),metro.takeLine("Красная")));
     }
 
     public static Metro createMetro(){
