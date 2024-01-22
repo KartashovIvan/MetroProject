@@ -1,18 +1,26 @@
+import exception.*;
 import metro.model.Metro;
 import metro.model.Station;
+
 import java.time.Duration;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Runner {
     public static void main(String[] args) {
-        Metro metro = createMetro();
-        System.out.println(metro);
+        try {
+            Metro metro = createMetro();
+            System.out.println(metro);
+            ticketSelling(metro);
+        } catch (LineException | StationException | SubscriptionException e) {
+            e.printStackTrace();
+        }
 
-//        System.out.println(metro.findChangeStation(metro.takeLine("Синяя"),metro.takeLine("Красная")));
+
     }
 
-    public static Metro createMetro(){
+    public static Metro createMetro() throws LineException, StationException {
         Metro metro = new Metro("Пермь");
         metro.createNewLine("Красная");
         metro.createNewLine("Синяя");
@@ -30,9 +38,28 @@ public class Runner {
         metro.createLastStation("Синяя", "Тяжмаш", Duration.ofMinutes(1).plusSeconds(47), new ArrayList<>(List.of(stationLine1)));
         metro.createLastStation("Синяя", "Нижнекамская", Duration.ofMinutes(3).plusSeconds(19));
         metro.createLastStation("Синяя", "Соборная", Duration.ofMinutes(1).plusSeconds(48));
-        Station stationLine2 = metro.getStation("Тяжмаш");
-        stationLine1.setChangStations(new ArrayList<>(List.of(stationLine2)));
+
 
         return metro;
+    }
+
+    public static void ticketSelling(Metro metro) throws ExistStationException, SubscriptionException {
+        metro.getStation("Спортивная").sellTicket(LocalDate.of(2024, 1, 2), "Спортивная", "Соборная");
+        metro.getStation("Спортивная").sellTicket(LocalDate.of(2024, 1, 2), "Спортивная", "Соборная");
+        metro.getStation("Спортивная").sellTicket(LocalDate.of(2024, 1, 3), "Спортивная", "Соборная");
+        metro.getStation("Медведковская").sellTicket(LocalDate.of(2024, 1, 2), "Медведковская", "Нижнекамская");
+        metro.getStation("Спортивная").sellSubscription("Спортивная", LocalDate.of(2024, 1, 2));
+        metro.getStation("Медведковская").sellSubscription("Медведковская", LocalDate.of(2024, 1, 3));
+        metro.getStation("Медведковская").sellSubscription("Медведковская", LocalDate.of(2024, 1, 4));
+        metro.getStation("Улица Кирова").sellSubscription("Улица Кирова", LocalDate.of(2023, 1, 1));
+
+        System.out.println("Действие билета id=a0001 " + metro.validSubscription("a0001", LocalDate.of(2024, 2, 2)));
+        System.out.println("Действие билета id=a0002 " + metro.validSubscription("a0002", LocalDate.of(2024, 2, 5)));
+
+        System.out.println(metro.getSubscription("a0000"));
+        metro.getStation("Молодежная").renewalSubscription("a0000", LocalDate.of(2024, 2, 3));
+        System.out.println(metro.getSubscription("a0000"));
+
+        metro.profitAllCashBox();
     }
 }

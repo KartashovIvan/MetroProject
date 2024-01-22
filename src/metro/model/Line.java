@@ -35,11 +35,6 @@ public class Line {
     }
 
     @Override
-    public int hashCode() {
-        return color.hashCode();
-    }
-
-    @Override
     public String toString() {
         return "Line{" +
                 "color='" + color + '\'' +
