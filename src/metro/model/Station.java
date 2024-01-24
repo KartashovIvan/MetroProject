@@ -1,16 +1,12 @@
 package metro.model;
 
-import exception.ExistStationException;
-import exception.NoLineException;
-import exception.StationException;
-import exception.SubscriptionException;
-import metro.register.CashBox;
-import metro.register.Subscription;
-
+import exception.*;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.StringJoiner;
+import metro.register.CashBox;
+import metro.register.Subscription;
 
 public class Station {
     private final int singlePayment = 20;
@@ -113,7 +109,7 @@ public class Station {
         metro.addSubscription(new Subscription(dateSale, metro.generateIdSubscription()));
     }
 
-    public void renewalSubscription(String idSubscription, LocalDate dateSale){
+    public void renewalSubscription(String idSubscription, LocalDate dateSale) {
         try {
             metro.getSubscription(idSubscription).setStartDate(dateSale);
         } catch (SubscriptionException e) {
@@ -134,10 +130,10 @@ public class Station {
 
     @Override
     public String toString() {
-        return "Station{" +
-                "name='" + name + '\'' +
-                ", changeLines=" + (changeStations != null ? concatLine(changeStations) : null) +
-                '\'' + '}';
+        return "Station{"
+                + "name='" + name + '\''
+                + ", changeLines=" + (changeStations != null ? concatLine(changeStations) : null)
+                + '\'' + '}';
     }
 
     private String concatLine(ArrayList<Station> stations) {

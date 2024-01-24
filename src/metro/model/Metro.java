@@ -1,11 +1,10 @@
 package metro.model;
 
 import exception.*;
-import metro.register.Subscription;
-
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.*;
+import metro.register.Subscription;
 
 public class Metro {
     private final String city;
@@ -24,16 +23,19 @@ public class Metro {
         lines.put(color, new Line(this, color));
     }
 
-    public void createFirstStationLine(String colorLine, String nameStation) throws StationException, LineException {
+    public void createFirstStationLine(String colorLine, String nameStation)
+            throws StationException, LineException {
         fillingFirstStationLine(colorLine, nameStation);
     }
 
-    public void createFirstStationLine(String colorLine, String nameStation, ArrayList<Station> changStations) throws StationException, LineException {
+    public void createFirstStationLine(String colorLine, String nameStation, ArrayList<Station> changStations)
+            throws StationException, LineException {
         addChangeStations(fillingFirstStationLine(colorLine, nameStation), changStations);
 
     }
 
-    private Station fillingFirstStationLine(String colorLine, String nameStation) throws StationException, LineException {
+    private Station fillingFirstStationLine(String colorLine, String nameStation)
+            throws StationException, LineException {
         checkExistLine(colorLine);
         Station station = createStation(colorLine, nameStation);
         checkExistStation(station);
@@ -46,15 +48,18 @@ public class Metro {
         return station;
     }
 
-    public void createLastStation(String colorLine, String nameStation, Duration durationTime) throws StationException, LineException {
+    public void createLastStation(String colorLine, String nameStation, Duration durationTime)
+            throws StationException, LineException {
         fillingLastStation(colorLine, nameStation, durationTime);
     }
 
-    public void createLastStation(String colorLine, String nameStation, Duration durationTime, ArrayList<Station> changeStations) throws StationException, LineException {
+    public void createLastStation(String colorLine, String nameStation, Duration durationTime, ArrayList<Station> changeStations)
+            throws StationException, LineException {
         addChangeStations(fillingLastStation(colorLine, nameStation, durationTime), changeStations);
     }
 
-    private Station fillingLastStation(String colorLine, String nameStation, Duration durationTime) throws StationException, LineException {
+    private Station fillingLastStation(String colorLine, String nameStation, Duration durationTime)
+            throws StationException, LineException {
         checkExistLine(colorLine);
         Line line = lines.get(colorLine);
         if (!checkExistFirstStation(line)) {
@@ -96,7 +101,10 @@ public class Metro {
         for (Line line : lines.values()) {
             for (Station existStation : line.getStations()) {
                 if (existStation.equals(station)) {
-                    throw new ExistStationException("Станция " + station.getName() + " существует в ветке " + line.getColor());
+                    throw new ExistStationException("Станция "
+                            + station.getName()
+                            + " существует в ветке "
+                            + line.getColor());
                 }
             }
         }
@@ -108,14 +116,21 @@ public class Metro {
 
     private void addNexStation(Station station, Station prevStation) throws ExistStationException {
         if (prevStation.getNextStation() != null) {
-            throw new ExistStationException("У станции " + prevStation.getName() + " уже есть следующая станция " + prevStation.getNextStation().getName());
+            throw new ExistStationException("У станции "
+                    + prevStation.getName()
+                    + " уже есть следующая станция "
+                    + prevStation.getNextStation().getName());
         }
         prevStation.setNextStation(station);
     }
 
     private void addDurationTime(Duration durationTime, Station station, Station prevStation) {
         if (durationTime.isZero()) {
-            throw new RuntimeException("Время поездки от станции " + station.getName() + " до станции " + prevStation.getName() + " не может быть 0");
+            throw new RuntimeException("Время поездки от станции "
+                    + station.getName()
+                    + " до станции "
+                    + prevStation.getName()
+                    + " не может быть 0");
         }
         prevStation.setTimeToNextStation(durationTime);
     }
@@ -131,13 +146,16 @@ public class Metro {
         throw new ExistStationException("Нет станции " + name);
     }
 
-    public Station findChangeStation(Line from, Line to) throws NoLineException {
+    public Station findChangeLine(Line from, Line to) throws NoLineException {
         for (Station station : lines.get(from.getColor()).getStations()) {
             if (findLine(station.getChangeStations(), to)) {
                 return station;
             }
         }
-        throw new NoLineException("У линии " + from.getColor() + " нет перехода на линию " + to.getColor());
+        throw new NoLineException("У линии "
+                + from.getColor()
+                + " нет перехода на линию "
+                + to.getColor());
     }
 
     private boolean findLine(ArrayList<Station> changStations, Line to) {
@@ -173,7 +191,7 @@ public class Metro {
             return countStationOneLine(fromStation, toStation);
         } else {
             int sum;
-            Station changeStation = findChangeStation(fromLine, toLine);
+            Station changeStation = findChangeLine(fromLine, toLine);
             sum = countStationOneLine(fromStation, changeStation);
             return sum + countStationOneLine(findChangeStation(changeStation.getChangeStations(), toLine), toStation);
         }

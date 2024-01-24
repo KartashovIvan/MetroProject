@@ -32,6 +32,9 @@ public class Subscription {
 
     @Override
     public String toString() {
-        return "Абонимент: " + id + ". Дата начала действия: " + startDate + ". Дата окончания действия: "+ expirationDate;
+        return "Абонимент: " + id
+                + ". Дата начала действия: "
+                + startDate + ". Дата окончания действия: "
+                + expirationDate;
     }
 }

@@ -1,11 +1,10 @@
 import exception.*;
-import metro.model.Metro;
-import metro.model.Station;
-
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import metro.model.Metro;
+import metro.model.Station;
 
 public class Runner {
     public static void main(String[] args) {
@@ -16,8 +15,6 @@ public class Runner {
         } catch (LineException | StationException | SubscriptionException e) {
             e.printStackTrace();
         }
-
-
     }
 
     public static Metro createMetro() throws LineException, StationException {
@@ -38,7 +35,6 @@ public class Runner {
         metro.createLastStation("Синяя", "Тяжмаш", Duration.ofMinutes(1).plusSeconds(47), new ArrayList<>(List.of(stationLine1)));
         metro.createLastStation("Синяя", "Нижнекамская", Duration.ofMinutes(3).plusSeconds(19));
         metro.createLastStation("Синяя", "Соборная", Duration.ofMinutes(1).plusSeconds(48));
-
 
         return metro;
     }

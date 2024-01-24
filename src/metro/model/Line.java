@@ -36,9 +36,9 @@ public class Line {
 
     @Override
     public String toString() {
-        return "Line{" +
-                "color='" + color + '\'' +
-                ", stations=" + stations +
-                '}';
+        return "Line{"
+                + "color='" + color + '\''
+                + ", stations=" + stations
+                + '}';
     }
 }
