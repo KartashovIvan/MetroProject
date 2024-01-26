@@ -25,13 +25,18 @@ public class Line {
     }
 
     @Override
+    public int hashCode() {
+        return color.toLowerCase().hashCode();
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
         Line line = (Line) o;
 
-        return color.equals(line.color);
+        return color.equalsIgnoreCase(line.color);
     }
 
     @Override

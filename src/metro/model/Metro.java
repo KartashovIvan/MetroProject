@@ -3,12 +3,15 @@ package metro.model;
 import exception.*;
 import java.time.Duration;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 import metro.register.Subscription;
 
 public class Metro {
     private final String city;
-    private final HashMap<String, Line> lines = new HashMap<>();
+    private final HashSet<Line> lines = new HashSet<>();
     private final HashMap<String, Subscription> storageSubscription = new HashMap<>();
     private int subscriptionId = 0;
 
@@ -17,10 +20,9 @@ public class Metro {
     }
 
     public void createNewLine(String color) throws LineException {
-        if (lines.containsKey(color)) {
+        if (!lines.add(new Line(this, color))) {
             throw new LineException(color + " линия метро уже есть!");
         }
-        lines.put(color, new Line(this, color));
     }
 
     public void createFirstStationLine(String colorLine, String nameStation)
@@ -36,11 +38,9 @@ public class Metro {
 
     private Station fillingFirstStationLine(String colorLine, String nameStation)
             throws StationException, LineException {
-        checkExistLine(colorLine);
-        Station station = createStation(colorLine, nameStation);
+        Line line = getLine(colorLine);
+        Station station = createStation(line, nameStation);
         checkExistStation(station);
-
-        Line line = lines.get(colorLine);
         if (checkExistFirstStation(line)) {
             throw new StationException("На линии " + line.getColor() + " уже есть первая станция");
         }
@@ -60,13 +60,12 @@ public class Metro {
 
     private Station fillingLastStation(String colorLine, String nameStation, Duration durationTime)
             throws StationException, LineException {
-        checkExistLine(colorLine);
-        Line line = lines.get(colorLine);
+        Line line = getLine(colorLine);
         if (!checkExistFirstStation(line)) {
             throw new StationException("У линии " + line.getColor() + " нет первой станции");
         }
 
-        Station station = createStation(colorLine, nameStation);
+        Station station = createStation(line, nameStation);
         checkExistStation(station);
         ArrayList<Station> stations = line.getStations();
         Station prevStation = stations.get(stations.size() - 1);
@@ -87,18 +86,21 @@ public class Metro {
         }
     }
 
-    private Station createStation(String colorLine, String nameStation) {
-        return new Station(this, lines.get(colorLine), nameStation);
+    private Station createStation(Line line, String nameStation) {
+        return new Station(this, line, nameStation);
     }
 
-    private void checkExistLine(String colorLine) throws NoLineException {
-        if (!lines.containsKey(colorLine)) {
-            throw new NoLineException(colorLine + " линии метро не существует!");
+    private Line getLine(String colorLine) throws NoLineException {
+        for (Line line : lines) {
+            if (line.equals(new Line(this, colorLine))) {
+                return line;
+            }
         }
+        throw new NoLineException(colorLine + " линии метро не существует!");
     }
 
     private void checkExistStation(Station station) throws ExistStationException {
-        for (Line line : lines.values()) {
+        for (Line line : lines) {
             for (Station existStation : line.getStations()) {
                 if (existStation.equals(station)) {
                     throw new ExistStationException("Станция "
@@ -136,7 +138,7 @@ public class Metro {
     }
 
     public Station getStation(String name) throws ExistStationException {
-        for (Line line : lines.values()) {
+        for (Line line : lines) {
             for (Station station : line.getStations()) {
                 if (station.getName().equals(name)) {
                     return station;
@@ -147,7 +149,7 @@ public class Metro {
     }
 
     public Station findChangeLine(Line from, Line to) throws NoLineException {
-        for (Station station : lines.get(from.getColor()).getStations()) {
+        for (Station station : getLine(from.getColor()).getStations()) {
             if (findLine(station.getChangeStations(), to)) {
                 return station;
             }
@@ -275,7 +277,7 @@ public class Metro {
 
     public void profitAllCashBox() {
         HashMap<LocalDate, Integer> report = new HashMap<>();
-        for (Line line : lines.values()) {
+        for (Line line : lines) {
             for (Station station : line.getStations()) {
                 HashMap<LocalDate, Integer> cash = station.getCashBox().getReport();
                 if (cash.isEmpty()) {
@@ -306,6 +308,6 @@ public class Metro {
 
     @Override
     public String toString() {
-        return "Metro{" + "city='" + city + '\'' + ", lines=" + lines.values() + '}';
+        return "Metro{" + "city='" + city + '\'' + ", lines=" + lines + '}';
     }
 }
