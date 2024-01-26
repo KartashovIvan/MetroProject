@@ -40,20 +40,31 @@ public class Runner {
     }
 
     public static void ticketSelling(Metro metro) throws ExistStationException, SubscriptionException {
-        metro.getStation("Спортивная").sellTicket(LocalDate.of(2024, 1, 2), "Спортивная", "Соборная");
-        metro.getStation("Спортивная").sellTicket(LocalDate.of(2024, 1, 2), "Спортивная", "Соборная");
-        metro.getStation("Спортивная").sellTicket(LocalDate.of(2024, 1, 3), "Спортивная", "Соборная");
-        metro.getStation("Медведковская").sellTicket(LocalDate.of(2024, 1, 2), "Медведковская", "Нижнекамская");
-        metro.getStation("Спортивная").sellSubscription("Спортивная", LocalDate.of(2024, 1, 2));
-        metro.getStation("Медведковская").sellSubscription("Медведковская", LocalDate.of(2024, 1, 3));
-        metro.getStation("Медведковская").sellSubscription("Медведковская", LocalDate.of(2024, 1, 4));
-        metro.getStation("Улица Кирова").sellSubscription("Улица Кирова", LocalDate.of(2023, 1, 1));
+        metro.getStation("Спортивная")
+                .sellTicket(LocalDate.of(2024, 1, 2), "Спортивная", "Соборная");
+        metro.getStation("Спортивная")
+                .sellTicket(LocalDate.of(2024, 1, 2), "Спортивная", "Соборная");
+        metro.getStation("Спортивная")
+                .sellTicket(LocalDate.of(2024, 1, 3), "Спортивная", "Соборная");
+        metro.getStation("Медведковская")
+                .sellTicket(LocalDate.of(2024, 1, 2), "Медведковская", "Нижнекамская");
+        metro.getStation("Спортивная")
+                .sellSubscription("Спортивная", LocalDate.of(2024, 1, 2));
+        metro.getStation("Медведковская")
+                .sellSubscription("Медведковская", LocalDate.of(2024, 1, 3));
+        metro.getStation("Медведковская")
+                .sellSubscription("Медведковская", LocalDate.of(2024, 1, 4));
+        metro.getStation("Улица Кирова")
+                .sellSubscription("Улица Кирова", LocalDate.of(2023, 1, 1));
 
-        System.out.println("Действие билета id=a0001 " + metro.validSubscription("a0001", LocalDate.of(2024, 2, 2)));
-        System.out.println("Действие билета id=a0002 " + metro.validSubscription("a0002", LocalDate.of(2024, 2, 5)));
+        System.out.println("Действие билета id=a0001 "
+                + metro.validSubscription("a0001", LocalDate.of(2024, 2, 2)));
+        System.out.println("Действие билета id=a0002 "
+                + metro.validSubscription("a0002", LocalDate.of(2024, 2, 5)));
 
         System.out.println(metro.getSubscription("a0000"));
-        metro.getStation("Молодежная").renewalSubscription("a0000", LocalDate.of(2024, 2, 3));
+        metro.getStation("Молодежная")
+                .renewalSubscription("a0000", LocalDate.of(2024, 2, 3));
         System.out.println(metro.getSubscription("a0000"));
 
         metro.profitAllCashBox();
