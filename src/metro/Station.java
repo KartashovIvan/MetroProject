@@ -1,30 +1,30 @@
-package metro.model;
+package metro;
 
-import exception.ExistStationException;
-import exception.NoLineException;
-import exception.StationException;
-import exception.SubscriptionException;
+import metro.exception.ExistStationException;
+import metro.exception.NoLineException;
+import metro.exception.StationException;
+import metro.exception.SubscriptionException;
 import java.time.Duration;
 import java.time.LocalDate;
-import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import java.util.StringJoiner;
-import metro.register.CashBox;
-import metro.register.Subscription;
 
 public class Station {
-    private final int singlePayment = 20;
-    private final int subscriptionCost = 3000;
+    private final static int SINGLE_PAYMENT = 20;
+    private final static int SUBSCRIPTION_COST = 3000;
     private final Metro metro;
     private final Line line;
     private final String name;
     private Station prevStation;
     private Station nextStation;
     private Duration timeToNextStation;
-    private ArrayList<Station> changeStations;
+    private List<Station> changeStations;
 
     private final CashBox cashBox = new CashBox();
 
     public Station(Metro metro, Line line, String name) {
+        Objects.requireNonNull(name);
         this.metro = metro;
         this.line = line;
         this.name = name;
@@ -66,11 +66,11 @@ public class Station {
         this.timeToNextStation = timeToNextStation;
     }
 
-    public ArrayList<Station> getChangeStations() {
+    public List<Station> getChangeStations() {
         return changeStations;
     }
 
-    public void setChangeStations(ArrayList<Station> changeStations) {
+    public void setChangeStations(List<Station> changeStations) {
         if (this.changeStations != null) {
             this.changeStations.addAll(changeStations);
         }
@@ -91,12 +91,12 @@ public class Station {
         } catch (ExistStationException e) {
             throw new RuntimeException(e);
         }
-        cashBox.addCash(dateSale, calculateProfit(singlePayment, from, to));
+        cashBox.addCash(dateSale, calculateProfit(from, to));
     }
 
-    private int calculateProfit(int singleFee, String from, String to) {
+    private int calculateProfit(String from, String to) {
         try {
-            return singleFee + (metro.countStation(from, to) * 5);
+            return SINGLE_PAYMENT + (metro.countStation(from, to) * 5);
         } catch (NoLineException | StationException e) {
             throw new RuntimeException(e);
         }
@@ -108,8 +108,8 @@ public class Station {
         } catch (ExistStationException e) {
             throw new RuntimeException(e);
         }
-        cashBox.addCash(dateSale, subscriptionCost);
-        metro.addSubscription(new Subscription(dateSale, metro.generateIdSubscription()));
+        cashBox.addCash(dateSale, SUBSCRIPTION_COST);
+        metro.addSubscription(new Subscription(dateSale, cashBox.generateIdSubscription()));
     }
 
     public void renewalSubscription(String idSubscription, LocalDate dateSale) {
@@ -118,7 +118,7 @@ public class Station {
         } catch (SubscriptionException e) {
             e.printStackTrace();
         }
-        cashBox.addCash(dateSale, subscriptionCost);
+        cashBox.addCash(dateSale, SUBSCRIPTION_COST);
     }
 
     @Override
@@ -139,7 +139,7 @@ public class Station {
                 + '\'' + '}';
     }
 
-    private String concatLine(ArrayList<Station> stations) {
+    private String concatLine(List<Station> stations) {
         StringJoiner joiner = new StringJoiner(", ");
         for (Station station : stations) {
             joiner.add(station.getLine().getColor());

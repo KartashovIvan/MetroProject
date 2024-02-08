@@ -1,4 +1,4 @@
-package exception;
+package metro.exception;
 
 public class LineException extends Exception {
     public LineException(String message) {

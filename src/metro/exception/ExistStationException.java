@@ -1,4 +1,4 @@
-package exception;
+package metro.exception;
 
 public class ExistStationException extends StationException {
     public ExistStationException(String message) {

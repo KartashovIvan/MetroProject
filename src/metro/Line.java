@@ -1,4 +1,4 @@
-package metro.model;
+package metro;
 
 import java.util.ArrayList;
 

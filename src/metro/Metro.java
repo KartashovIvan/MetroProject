@@ -1,39 +1,39 @@
-package metro.model;
+package metro;
 
-import exception.*;
+import metro.exception.*;
+
+import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import metro.register.Subscription;
+import java.util.*;
 
 public class Metro {
     private final String city;
     private final HashSet<Line> lines = new HashSet<>();
     private final HashMap<String, Subscription> storageSubscription = new HashMap<>();
-    private int subscriptionId = 0;
 
     public Metro(String city) {
         this.city = city;
     }
 
-    public void createNewLine(String color) throws LineException {
-        if (!lines.add(new Line(this, color))) {
+    public Line createNewLine(String color) throws LineException {
+        Line line = new Line(this, color);
+        if (!lines.add(line)) {
             throw new LineException(color + " линия метро уже есть!");
         }
+        return line;
     }
 
-    public void createFirstStationLine(String colorLine, String nameStation)
+    public Station createFirstStationLine(String colorLine, String nameStation)
             throws StationException, LineException {
-        fillingFirstStationLine(colorLine, nameStation);
+        return fillingFirstStationLine(colorLine, nameStation);
     }
 
-    public void createFirstStationLine(String colorLine, String nameStation, ArrayList<Station> changStations)
+    public Station createFirstStationLine(String colorLine, String nameStation, List<Station> changStations)
             throws StationException, LineException {
-        addChangeStations(fillingFirstStationLine(colorLine, nameStation), changStations);
-
+        Station station = fillingFirstStationLine(colorLine, nameStation);
+        addChangeStations(station, changStations);
+        return station;
     }
 
     private Station fillingFirstStationLine(String colorLine, String nameStation)
@@ -48,14 +48,16 @@ public class Metro {
         return station;
     }
 
-    public void createLastStation(String colorLine, String nameStation, Duration durationTime)
+    public Station createLastStation(String colorLine, String nameStation, Duration durationTime)
             throws StationException, LineException {
-        fillingLastStation(colorLine, nameStation, durationTime);
+        return fillingLastStation(colorLine, nameStation, durationTime);
     }
 
-    public void createLastStation(String colorLine, String nameStation, Duration durationTime, ArrayList<Station> changeStations)
+    public Station createLastStation(String colorLine, String nameStation, Duration durationTime, ArrayList<Station> changeStations)
             throws StationException, LineException {
-        addChangeStations(fillingLastStation(colorLine, nameStation, durationTime), changeStations);
+        Station station = fillingLastStation(colorLine, nameStation, durationTime);
+        addChangeStations(station, changeStations);
+        return station;
     }
 
     private Station fillingLastStation(String colorLine, String nameStation, Duration durationTime)
@@ -76,10 +78,10 @@ public class Metro {
         return station;
     }
 
-    private void addChangeStations(Station station, ArrayList<Station> changeStations) {
+    private void addChangeStations(Station station, List<Station> changeStations) {
         station.setChangeStations(changeStations);
         for (int i = 0; i < changeStations.size(); i++) {
-            ArrayList<Station> changStationsCopy = new ArrayList<>(changeStations);
+            List<Station> changStationsCopy = new ArrayList<>(changeStations);
             Station station1 = changeStations.get(i);
             changStationsCopy.set(i, station);
             station1.setChangeStations(changStationsCopy);
@@ -160,7 +162,7 @@ public class Metro {
                 + to.getColor());
     }
 
-    private boolean findLine(ArrayList<Station> changStations, Line to) {
+    private boolean findLine(List<Station> changStations, Line to) {
         if (changStations != null) {
             for (Station s : changStations) {
                 if (s.getLine().equals(to)) {
@@ -171,7 +173,7 @@ public class Metro {
         return false;
     }
 
-    private Station findChangeStation(ArrayList<Station> changStations, Line to) throws ExistStationException {
+    private Station findChangeStation(List<Station> changStations, Line to) throws ExistStationException {
         for (Station s : changStations) {
             if (s.getLine().equals(to)) {
                 return s;
@@ -257,12 +259,6 @@ public class Metro {
         storageSubscription.put(subscription.getId(), subscription);
     }
 
-    public String generateIdSubscription() {
-        String id = "a" + String.format("%04d", subscriptionId);
-        subscriptionId++;
-        return id;
-    }
-
     public Subscription getSubscription(String idSubscription) throws SubscriptionException {
         if (storageSubscription.containsKey(idSubscription)) {
             return storageSubscription.get(idSubscription);
@@ -276,10 +272,10 @@ public class Metro {
     }
 
     public void profitAllCashBox() {
-        HashMap<LocalDate, Integer> report = new HashMap<>();
+        HashMap<LocalDate, BigDecimal> report = new HashMap<>();
         for (Line line : lines) {
             for (Station station : line.getStations()) {
-                HashMap<LocalDate, Integer> cash = station.getCashBox().getReport();
+                HashMap<LocalDate, BigDecimal> cash = station.getCashBox().getReport();
                 if (cash.isEmpty()) {
                     continue;
                 }
@@ -289,19 +285,19 @@ public class Metro {
         printReport(report);
     }
 
-    private void addCash(HashMap<LocalDate, Integer> cash, HashMap<LocalDate, Integer> report) {
-        for (Map.Entry<LocalDate, Integer> entry : cash.entrySet()) {
+    private void addCash(HashMap<LocalDate, BigDecimal> cash, HashMap<LocalDate, BigDecimal> report) {
+        for (Map.Entry<LocalDate, BigDecimal> entry : cash.entrySet()) {
             LocalDate key = entry.getKey();
             if (!report.containsKey(key)) {
                 report.put(entry.getKey(), entry.getValue());
             } else {
-                report.put(entry.getKey(), report.get(entry.getKey()) + entry.getValue());
+                report.put(entry.getKey(), report.get(entry.getKey()).add(entry.getValue()));
             }
         }
     }
 
-    private void printReport(HashMap<LocalDate, Integer> report) {
-        for (Map.Entry<LocalDate, Integer> entry : report.entrySet()) {
+    private void printReport(HashMap<LocalDate, BigDecimal> report) {
+        for (Map.Entry<LocalDate, BigDecimal> entry : report.entrySet()) {
             System.out.println("Дата - " + entry.getKey() + " : доход " + entry.getValue());
         }
     }

@@ -1,4 +1,4 @@
-package exception;
+package metro.exception;
 
 public class SubscriptionException extends Exception {
     public SubscriptionException(String message) {

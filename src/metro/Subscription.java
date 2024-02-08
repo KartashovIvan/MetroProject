@@ -1,4 +1,4 @@
-package metro.register;
+package metro;
 
 import java.time.LocalDate;
 
