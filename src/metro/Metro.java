@@ -101,9 +101,8 @@ public class Metro {
 
     private void checkExistStation(Station station) throws ExistStationException {
         if (lines.stream()
-                .map(Line::getStations)
-                .flatMap(Collection::stream)
-                .anyMatch(station1 -> station1.equals(station))) {
+                .flatMap(line->line.getStations().stream())
+                .anyMatch(existStation -> existStation.equals(station))) {
             throw new ExistStationException("Станция "
                     + station.getName()
                     + " существует в ветке "
