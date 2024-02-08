@@ -137,8 +137,7 @@ public class Metro {
 
     public Station getStation(String name) throws ExistStationException {
         return lines.stream()
-                .map(Line::getStations)
-                .flatMap(Collection::stream)
+                .flatMap(line->line.getStations().stream())
                 .filter(station -> station.getName().equals(name))
                 .findFirst()
                 .orElseThrow(() -> new ExistStationException("Нет станции " + name));
