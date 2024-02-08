@@ -69,8 +69,8 @@ public class Metro {
 
         Station station = createStation(line, nameStation);
         checkExistStation(station);
-        ArrayList<Station> stations = line.getStations();
-        Station prevStation = stations.get(stations.size() - 1);
+        LinkedList<Station> stations = line.getStations();
+        Station prevStation = stations.getLast();
         station.setPrevStation(prevStation);
         addNexStation(station, prevStation);
         addDurationTime(durationTime, station, prevStation);

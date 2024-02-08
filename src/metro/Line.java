@@ -1,12 +1,11 @@
 package metro;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 
 public class Line {
     private final Metro metro;
     private final String color;
-    private final ArrayList<Station> stations = new ArrayList<>();
-
+    private final LinkedList<Station> stations = new LinkedList<>();
     public Line(Metro metro, String color) {
         this.metro = metro;
         this.color = color;
@@ -20,7 +19,7 @@ public class Line {
         return color;
     }
 
-    public ArrayList<Station> getStations() {
+    public LinkedList<Station> getStations() {
         return stations;
     }
 
