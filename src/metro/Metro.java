@@ -101,7 +101,7 @@ public class Metro {
 
     private void checkExistStation(Station station) throws ExistStationException {
         if (lines.stream()
-                .flatMap(line->line.getStations().stream())
+                .flatMap(line -> line.getStations().stream())
                 .anyMatch(existStation -> existStation.equals(station))) {
             throw new ExistStationException("Станция "
                     + station.getName()
@@ -137,7 +137,7 @@ public class Metro {
 
     public Station getStation(String name) throws ExistStationException {
         return lines.stream()
-                .flatMap(line->line.getStations().stream())
+                .flatMap(line -> line.getStations().stream())
                 .filter(station -> station.getName().equals(name))
                 .findFirst()
                 .orElseThrow(() -> new ExistStationException("Нет станции " + name));

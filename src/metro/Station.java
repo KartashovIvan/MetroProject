@@ -5,14 +5,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 import java.util.StringJoiner;
-import metro.exception.ExistStationException;
-import metro.exception.NoLineException;
-import metro.exception.StationException;
-import metro.exception.SubscriptionException;
 
 public class Station {
-    private final static int SINGLE_PAYMENT = 20;
-    private final static int SUBSCRIPTION_COST = 3000;
     private final Metro metro;
     private final Line line;
     private final String name;
@@ -82,43 +76,15 @@ public class Station {
     }
 
     public void sellTicket(LocalDate dateSale, String from, String to) {
-        if (from.equalsIgnoreCase(to)) {
-            throw new RuntimeException("Станция начала пути " + from + " равна конечной станции " + to);
-        }
-        try {
-            metro.getStation(from);
-            metro.getStation(to);
-        } catch (ExistStationException e) {
-            throw new RuntimeException(e);
-        }
-        cashBox.addCash(dateSale, calculateProfit(from, to));
-    }
-
-    private int calculateProfit(String from, String to) {
-        try {
-            return SINGLE_PAYMENT + (metro.countStation(from, to) * 5);
-        } catch (NoLineException | StationException e) {
-            throw new RuntimeException(e);
-        }
+        cashBox.accountSellTicket(dateSale, from, to, metro);
     }
 
     public void sellSubscription(String nameSalesStation, LocalDate dateSale) {
-        try {
-            metro.getStation(nameSalesStation);
-        } catch (ExistStationException e) {
-            throw new RuntimeException(e);
-        }
-        cashBox.addCash(dateSale, SUBSCRIPTION_COST);
-        metro.addSubscription(new Subscription(dateSale, cashBox.generateIdSubscription()));
+        cashBox.accountSellSubscription(nameSalesStation, dateSale, metro);
     }
 
     public void renewalSubscription(String idSubscription, LocalDate dateSale) {
-        try {
-            metro.getSubscription(idSubscription).setStartDate(dateSale);
-        } catch (SubscriptionException e) {
-            e.printStackTrace();
-        }
-        cashBox.addCash(dateSale, SUBSCRIPTION_COST);
+        cashBox.accountRenewalSubscription(idSubscription, dateSale, metro);
     }
 
     @Override
