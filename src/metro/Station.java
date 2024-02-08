@@ -1,14 +1,14 @@
 package metro;
 
-import metro.exception.ExistStationException;
-import metro.exception.NoLineException;
-import metro.exception.StationException;
-import metro.exception.SubscriptionException;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 import java.util.StringJoiner;
+import metro.exception.ExistStationException;
+import metro.exception.NoLineException;
+import metro.exception.StationException;
+import metro.exception.SubscriptionException;
 
 public class Station {
     private final static int SINGLE_PAYMENT = 20;
@@ -141,9 +141,9 @@ public class Station {
 
     private String concatLine(List<Station> stations) {
         StringJoiner joiner = new StringJoiner(", ");
-        for (Station station : stations) {
-            joiner.add(station.getLine().getColor());
-        }
+        stations.stream()
+                .map(station -> station.getLine().getColor())
+                .forEach(joiner::add);
         return joiner.toString();
     }
 }

@@ -1,10 +1,10 @@
-import metro.exception.*;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import metro.Metro;
 import metro.Station;
+import metro.exception.*;
 
 public class Runner {
     public static void main(String[] args) {
@@ -58,7 +58,6 @@ public class Runner {
         metro.getStation("Улица Кирова")
                 .sellSubscription("Улица Кирова", LocalDate.of(2023, 1, 1));
 
-
         System.out.println("Действие билета id=a0001 "
                 + metro.validSubscription("a0001", LocalDate.of(2024, 2, 2)));
         System.out.println("Действие билета id=a0002 "
@@ -69,6 +68,6 @@ public class Runner {
                 .renewalSubscription("a0000", LocalDate.of(2024, 2, 3));
         System.out.println(metro.getSubscription("a0000"));
 
-        metro.profitAllCashBox();
+        metro.printReport();
     }
 }

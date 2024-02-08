@@ -6,6 +6,7 @@ import java.util.HashMap;
 
 public class CashBox {
     private static int subscriptionId = 0;
+
     private final HashMap<LocalDate, BigDecimal> report = new HashMap<>();
 
     public HashMap<LocalDate, BigDecimal> getReport() {

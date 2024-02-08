@@ -1,16 +1,16 @@
 package metro;
 
-import metro.exception.*;
-
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
+import metro.exception.*;
 
 public class Metro {
     private final String city;
     private final HashSet<Line> lines = new HashSet<>();
-    private final HashMap<String, Subscription> storageSubscription = new HashMap<>();
+    private final HashSet<Subscription> storageSubscription = new HashSet<>();
 
     public Metro(String city) {
         this.city = city;
@@ -93,24 +93,21 @@ public class Metro {
     }
 
     private Line getLine(String colorLine) throws NoLineException {
-        for (Line line : lines) {
-            if (line.equals(new Line(this, colorLine))) {
-                return line;
-            }
-        }
-        throw new NoLineException(colorLine + " линии метро не существует!");
+        return lines.stream()
+                .filter(line -> line.equals(new Line(this, colorLine)))
+                .findFirst()
+                .orElseThrow(() -> new NoLineException(colorLine + " линии метро не существует!"));
     }
 
     private void checkExistStation(Station station) throws ExistStationException {
-        for (Line line : lines) {
-            for (Station existStation : line.getStations()) {
-                if (existStation.equals(station)) {
-                    throw new ExistStationException("Станция "
-                            + station.getName()
-                            + " существует в ветке "
-                            + line.getColor());
-                }
-            }
+        if (lines.stream()
+                .map(Line::getStations)
+                .flatMap(Collection::stream)
+                .anyMatch(station1 -> station1.equals(station))) {
+            throw new ExistStationException("Станция "
+                    + station.getName()
+                    + " существует в ветке "
+                    + station.getLine().getColor());
         }
     }
 
@@ -140,46 +137,35 @@ public class Metro {
     }
 
     public Station getStation(String name) throws ExistStationException {
-        for (Line line : lines) {
-            for (Station station : line.getStations()) {
-                if (station.getName().equals(name)) {
-                    return station;
-                }
-            }
-        }
-        throw new ExistStationException("Нет станции " + name);
+        return lines.stream()
+                .map(Line::getStations)
+                .flatMap(Collection::stream)
+                .filter(station -> station.getName().equals(name))
+                .findFirst()
+                .orElseThrow(() -> new ExistStationException("Нет станции " + name));
     }
 
     public Station findChangeLine(Line from, Line to) throws NoLineException {
-        for (Station station : getLine(from.getColor()).getStations()) {
-            if (findLine(station.getChangeStations(), to)) {
-                return station;
-            }
-        }
-        throw new NoLineException("У линии "
-                + from.getColor()
-                + " нет перехода на линию "
-                + to.getColor());
+        return lines.stream()
+                .flatMap(line -> line.getStations().stream())
+                .filter(station -> station.getChangeStations() != null && findLine(station.getChangeStations(), to))
+                .findFirst().orElseThrow(() ->
+                        new NoLineException("У линии "
+                                + from.getColor()
+                                + " нет перехода на линию "
+                                + to.getColor()));
     }
 
     private boolean findLine(List<Station> changStations, Line to) {
-        if (changStations != null) {
-            for (Station s : changStations) {
-                if (s.getLine().equals(to)) {
-                    return true;
-                }
-            }
-        }
-        return false;
+        return changStations.stream()
+                .allMatch(station -> station.getLine().equals(to));
     }
 
     private Station findChangeStation(List<Station> changStations, Line to) throws ExistStationException {
-        for (Station s : changStations) {
-            if (s.getLine().equals(to)) {
-                return s;
-            }
-        }
-        throw new ExistStationException("Нет станции для пересадки на линию " + to.getColor());
+        return changStations.stream()
+                .filter(station -> station.getLine().equals(to))
+                .findFirst()
+                .orElseThrow(() -> new ExistStationException("Нет станции для пересадки на линию " + to.getColor()));
     }
 
     public int countStation(String from, String to) throws StationException, NoLineException {
@@ -256,14 +242,14 @@ public class Metro {
     }
 
     public void addSubscription(Subscription subscription) {
-        storageSubscription.put(subscription.getId(), subscription);
+        storageSubscription.add(subscription);
     }
 
     public Subscription getSubscription(String idSubscription) throws SubscriptionException {
-        if (storageSubscription.containsKey(idSubscription)) {
-            return storageSubscription.get(idSubscription);
-        }
-        throw new SubscriptionException("Нет абонимента с Id - " + idSubscription);
+        return storageSubscription.stream()
+                .filter(subscription -> subscription.getId().equals(idSubscription))
+                .findFirst()
+                .orElseThrow(() -> new SubscriptionException("Нет абонимента с Id - " + idSubscription));
     }
 
     public boolean validSubscription(String idSubscription, LocalDate dateInspection) throws SubscriptionException {
@@ -271,35 +257,17 @@ public class Metro {
         return subscriptionStart.compareTo(dateInspection) >= 0;
     }
 
-    public void profitAllCashBox() {
-        HashMap<LocalDate, BigDecimal> report = new HashMap<>();
-        for (Line line : lines) {
-            for (Station station : line.getStations()) {
-                HashMap<LocalDate, BigDecimal> cash = station.getCashBox().getReport();
-                if (cash.isEmpty()) {
-                    continue;
-                }
-                addCash(cash, report);
-            }
-        }
-        printReport(report);
-    }
-
-    private void addCash(HashMap<LocalDate, BigDecimal> cash, HashMap<LocalDate, BigDecimal> report) {
-        for (Map.Entry<LocalDate, BigDecimal> entry : cash.entrySet()) {
-            LocalDate key = entry.getKey();
-            if (!report.containsKey(key)) {
-                report.put(entry.getKey(), entry.getValue());
-            } else {
-                report.put(entry.getKey(), report.get(entry.getKey()).add(entry.getValue()));
-            }
-        }
-    }
-
-    private void printReport(HashMap<LocalDate, BigDecimal> report) {
-        for (Map.Entry<LocalDate, BigDecimal> entry : report.entrySet()) {
-            System.out.println("Дата - " + entry.getKey() + " : доход " + entry.getValue());
-        }
+    public void printReport() {
+        lines.stream()
+                .flatMap(line -> line.getStations().stream())
+                .filter(station -> !station.getCashBox().getReport().isEmpty())
+                .map(station -> station.getCashBox().getReport().entrySet())
+                .flatMap(Collection::stream)
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        Map.Entry::getValue,
+                        BigDecimal::add))
+                .forEach((date, profit) -> System.out.println("Дата - " + date + " : доход " + profit));
     }
 
     @Override
